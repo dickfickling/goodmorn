@@ -30,8 +30,17 @@ var CardView = Backbone.View.extend({
     className: 'card',
 
     render: function () {
-      this.$el.html(new Array(3).join(this.model.get('title') + '<br />'));
+      var button = '<button class="close glyphicon glyphicon-remove"></button>';
+      this.$el.html(button + new Array(3).join('<h3>' + this.model.get('title') + '</h3>'));
       return this;
+    },
+
+    events: {
+      'click .close': 'closeCard'
+    },
+
+    closeCard: function() {
+      this.model.destroy();
     }
 });
 
@@ -44,7 +53,7 @@ var ColumnView = Backbone.View.extend({
     _numColumns: 0,
 
     initialize: function () {
-      this.collection.bind('add', function() { 
+      this.collection.bind('sync reset add destroy', function() { 
         this.listSync();
         this.persist();
       }.bind(this));
@@ -59,8 +68,6 @@ var ColumnView = Backbone.View.extend({
     
     render: function () {
       this._listItems = {};
-
-      this.listenTo( this.collection, 'sync reset', this.listSync );
 
       this.listSync();
 
@@ -163,6 +170,8 @@ $(function () {
   $('#dashboard').append(columnList.render().$el);
 
 
+  // TODO: move these handlers to their respective views
+  
   $('#addColumnButton').click(function () {
     columnList.addColumn();
     $('.column').each(function () {
@@ -175,6 +184,7 @@ $(function () {
   });
 
   $('#addCardButton').click(function () {
+    if (columnList._numColumns == 0) columnList.addColumn();
     var maxRowInLastColumn = Math.max.apply(null,
       columnList.collection.filter(function (el) {
         return el.attributes.column == columnList._numColumns - 1;
@@ -185,7 +195,8 @@ $(function () {
     columnList.collection.add({
       row: maxRowInLastColumn == -Infinity ? 0 : maxRowInLastColumn + 1,
       column: columnList._numColumns - 1,
-      title: 'New Item'
+      title: 'HEADLINES'
     });
   });
+
 });

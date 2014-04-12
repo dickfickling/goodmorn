@@ -14,7 +14,7 @@ body {
 .card {
   list-style-type: none;
   line-height: 40px;
-  border: 3px solid #e5e5e5;
+  border: 1px solid #e5e5e5;
   padding-left: 10px;
   margin: 10px;
   background: #FFF;
@@ -27,12 +27,40 @@ body {
   list-style-type: none;
 }
 
+.card .close {
+  visibility: hidden;
+  margin-right: 5px;
+  margin-top: 5px;
+}
+
+.card:hover .close {
+  visibility: visible;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 18px;
+  color: #000000;
+  text-shadow: 0 1px 0 #ffffff;
+  opacity: 0.2;
+  filter: alpha(opacity=20);
+  text-decoration: none;
+}
+
+.card:hover .close:hover {
+  visibility: visible;
+  color: #000000;
+  text-decoration: none;
+  opacity: 0.4;
+  filter: alpha(opacity=40);
+  cursor: pointer;
+}
+
 .column {
   min-height: 60px;
   list-style-type: none;
   float: left;
   min-width: 200px;
   padding: 0px;
+  margin: 5px;
   margin-bottom: 40px;
   border: 1px solid #e5e5e5;
 }
