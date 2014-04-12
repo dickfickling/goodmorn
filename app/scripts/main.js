@@ -74,8 +74,7 @@ var ColumnView = Backbone.View.extend({
           $(this).sortable({ 
             connectWith: '.sortable',
             dropOnEmpty: true,
-          tolerance: 'pointer' });
-          $(this).draggable();
+            tolerance: 'pointer' });
         });
     },
 
@@ -139,19 +138,20 @@ var ColumnView = Backbone.View.extend({
 });
 
 $(function () {
-  var cards = new CardColumn([
-    { row: 0, column: 0, title: 'Item 1' },
-    { row: 1, column: 0, title: 'Item 2' },
-    { row: 2, column: 1, title: 'Item 3' },
-    { row: 3, column: 1, title: 'Item 4' },
-    { row: 1, column: 2, title: 'Item 5' },
-    { row: 2, column: 2, title: 'Item 6' },
-    { row: 3, column: 2, title: 'Item 7' },
+  var cards = new CardColumn(JSON.parse(localStorage.getItem('cards')) ||
+    [{ row: 0, column: 0, title: 'Item 1' },
+    { row: 0, column: 1, title: 'Item 2' },
+    { row: 0, column: 2, title: 'Item 3' },
     ]);
 
   var columnList = new ColumnView({collection: cards});
 
   $('#dashboard').append(columnList.render().$el);
+
+  columnList.on('sorted', function () {
+    localStorage.setItem('cards', JSON.stringify(columnList.collection))
+  });
+
 
   $('#addColumnButton').click(function () {
     columnList.addColumn();
