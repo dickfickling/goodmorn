@@ -42,6 +42,20 @@ var ColumnView = Backbone.View.extend({
     _listItems: null,
     _listIsSyncing: false,
     _numColumns: 0,
+
+    initialize: function () {
+      this.collection.bind('add', function() { 
+        this.listSync();
+        this.persist();
+      }.bind(this));
+
+      this.on('sorted', this.persist.bind(this));
+
+    },
+
+    persist: function () {
+        localStorage.setItem('cards', JSON.stringify(this.collection))
+    },
     
     render: function () {
       this._listItems = {};
@@ -87,7 +101,7 @@ var ColumnView = Backbone.View.extend({
       var list = this.collection.models;
 
       var startCols = Math.max.apply(null, list.map(function (el) { return el.attributes.column })) + 1;
-      for (var i = 0; i < startCols; i++) {
+      for (var i = this._numColumns; i < startCols; i++) {
         this.addColumn();
       }
 
@@ -148,10 +162,6 @@ $(function () {
 
   $('#dashboard').append(columnList.render().$el);
 
-  columnList.on('sorted', function () {
-    localStorage.setItem('cards', JSON.stringify(columnList.collection))
-  });
-
 
   $('#addColumnButton').click(function () {
     columnList.addColumn();
@@ -164,4 +174,18 @@ $(function () {
     });
   });
 
+  $('#addCardButton').click(function () {
+    var maxRowInLastColumn = Math.max.apply(null,
+      columnList.collection.filter(function (el) {
+        return el.attributes.column == columnList._numColumns - 1;
+      })
+      .map(function (el) {
+        return el.attributes.row;
+      }));
+    columnList.collection.add({
+      row: maxRowInLastColumn == -Infinity ? 0 : maxRowInLastColumn + 1,
+      column: columnList._numColumns - 1,
+      title: 'New Item'
+    });
+  });
 });
