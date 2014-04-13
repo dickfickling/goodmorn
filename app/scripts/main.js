@@ -2,7 +2,7 @@ var Card = Backbone.Model.extend({
   defaults: {
     column: 0,
     row: 0,
-    title: ''
+    cardTypeName: null
   }
 });
 
@@ -31,7 +31,11 @@ var CardView = Backbone.View.extend({
 
     render: function () {
       var button = '<button class="close glyphicon glyphicon-remove"></button>';
-      this.$el.html(button + new Array(3).join('<h3>' + this.model.get('title') + '</h3>'));
+      var name = this.model.get('cardTypeName');
+      var cardType = cardTypesList.findWhere({name: name});
+      var render = cardType.get('render').bind(cardType);
+
+      this.$el.html(button + render());
       return this;
     },
 
@@ -160,12 +164,13 @@ var ColumnView = Backbone.View.extend({
 
 $(function () {
   var cards = new CardColumn(JSON.parse(localStorage.getItem('cards')) ||
-    [{ row: 0, column: 0, title: 'Item 1' },
-    { row: 0, column: 1, title: 'Item 2' },
-    { row: 0, column: 2, title: 'Item 3' },
-    ]);
+    []);
 
   var columnList = new ColumnView({collection: cards});
+  
+  var cardTypesViews = new CardTypesView({collection: cardTypesList});
+
+  $('#cardTypes').append(cardTypesViews.render().$el);
 
   $('#dashboard').append(columnList.render().$el);
 
@@ -192,11 +197,21 @@ $(function () {
       .map(function (el) {
         return el.attributes.row;
       }));
+    var name = $('#cardTypes').find(':selected').text();
     columnList.collection.add({
       row: maxRowInLastColumn == -Infinity ? 0 : maxRowInLastColumn + 1,
       column: columnList._numColumns - 1,
-      title: 'HEADLINES'
+      cardTypeName: name
     });
   });
+    $('#newTodo').keyup(function (event) {
+      var todos = JSON.parse(localStorage.getItem('todo')) || [];
+      if (event.which == 13) {
+        todos.push($(this).val());
+        $('#todo').append('<li><h3>' + $(this).val() + '</li></h3>');
+        $(this).val('');
+        localStorage.setItem('todo', JSON.stringify(todos));
+      }
+    });
 
 });
